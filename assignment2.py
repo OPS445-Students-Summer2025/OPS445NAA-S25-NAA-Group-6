@@ -66,6 +66,26 @@ def account_expiries(username):
 def generate_report(username, user_data):
     "returns all the infomation obtained as a text file"
 
+    filename = "report_" + username + ".txt"  # iam naming the report file by using the username so it is easy to know who it belongs to
+    with open(filename, "w") as report: # opening the file in write mode, which will create the file or overwrite it if it already exists
+
+        # First, it writes the basic info about the user
+        report.write("System Report for User: " + username + "\n")
+        report.write("UID: " + str(user_data['uid']) + "\n")  # then their UID
+        report.write("GID: " + str(user_data['gid']) + "\n")  # and their GID
+
+        # Now writes the list of groups this user is in, separated by commas(eg:sudo,admin...)
+        report.write("Groups: " + ", ".join(user_data['groups']) + "\n")
+
+        # If there are any warnings (like sudo or adm access), it writes them too
+        if user_data['warnings']:
+            report.write("Warnings:\n")
+            for warning in user_data['warnings']:
+                report.write("- " + warning + "\n")
+
+    # shows a message in to know that it worked out 
+    print("Report saved as", filename)
+
 def main():
     pass
 
