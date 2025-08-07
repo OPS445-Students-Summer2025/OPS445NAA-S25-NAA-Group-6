@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-#Description: Assignment2 script - System user monitoring Project. User will enter valid account name and will return computer log time, user account type, and sudo status.
+
+'''
+OPS445 Assignment 2
+Program: system_user_monitor.py
+The python code in this file is original work written by
+"Student Names". No code in this file is copied from any other source
+except those provided by the course instructor, including any person,
+textbook, or on-line resource. I have not shared this python script
+with anyone or anything except for submission for grading. I understand
+that the Academic Honesty Policy will be enforced and
+violators will be reported and appropriate action will be taken.
+
+Student Names: Andrew Holder, Tenzin Wangyel, Sundar Bashyal
+Semester: Summer 2025
+Description: Assignment2 script - System user monitoring Project. User will enter a valid account(username) name and script will return user identity, computer log time, account expiries, and sudo status.
+
+'''
 
 import subprocess # Can run external programs or system commands from within the python script.
 import pwd # Access the 'pwd' module. Retrieve information about user accounts(/etc/passwd) on a Unix/Linux system.
