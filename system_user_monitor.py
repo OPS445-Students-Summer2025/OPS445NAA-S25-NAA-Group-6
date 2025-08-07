@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#Description: Assignment2 script - System user monitoring Project. User will enter valid account name and will return computer log time, user account type, and sudo status
+#Description: Assignment2 script - System user monitoring Project. User will enter valid account name and will return computer log time, user account type, and sudo status.
 
 import subprocess # Can run external programs or system commands from within the python script.
 import pwd # Access the 'pwd' module. Retrieve information about user accounts(/etc/passwd) on a Unix/Linux system.
@@ -123,7 +123,12 @@ def account_expiries(username):
 def generate_report(username, report):
     "Returns all the infomation as a text file."
     report_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # Creates timestamp for each report. Obtains current date and time.
-    report_dir = os.path.expanduser("~/user_reports") # Will save to /home/andrew/user_reports
+    
+    #Get home directory of user running script.
+    current_user = os.getenv("SUDO_USER") or os.getenv("USER")
+    user_home = pwd.getpwnam(current_user).pw_dir
+
+    report_dir = os.path.join(user_home, "user_reports") # Will save to /home/user/user_reports
     os.makedirs(report_dir, exist_ok=True) # Creates the folder if it does not already exist. If it does exist, do nothing.
 
     filename = os.path.join(report_dir, f"user_report_{username}_{report_time}.txt") # Joins the path to the report with the username, and timestamp for a unique filename.
