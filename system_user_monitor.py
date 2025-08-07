@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-OPS445 Assignment
+OPS445 Assignment 2
 Program: system_user_monitor.py
 The python code in this file is original work written by
 "Student Names". No code in this file is copied from any other source
