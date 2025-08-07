@@ -84,21 +84,50 @@ def user_identity(username):
 def check_sudo_attempts(username):
     "obtains the number of times the 'sudo' command was passed or failed"
     try:
-        with open('/var/log/auth.log', 'r') as file:
-            sudo_success = 0
-            sudo_failure = 0
+        with open('/var/log/auth.log', 'r') as auth_file: # Opens the file in read-only mode. The '/var/log/auth.log' file stores system authentication messages(like 'sudo' usage and authentication failures). 'with' is a safe way to open the file, since it closes automatically when finished.
+            sudo_success = 0 # Counts # of successful 'sudo' commands the user ran.
+            sudo_failure = 0 # Counts # of failed 'sudo' password attempts they made.
+
+            for line in auth_file: # Loop through each line of the file(each line in file is an event)
+                if "sudo" in line and username in line: # Filters through the lines that mention "sudo"('sudo'-related action), and include the given username(specific user).
+                    if "COMMAND=" in line: # If the user successfully ran a 'sudo' command
+                        sudo_success += 1 # Success counter increases by 1
+
+                    elif "authentication failure" in line: # If the user's 'sudo' password attempt failed
+                        sudo_failure += 1 # Failure counter increases by 1
+
+        return (f"\n==== Sudo Attempts ====\n" # returns string in following format
+                f"Successful attempts: {sudo_success}\n"
+                f"Failed attempts: {sudo_failure}")
+    
+    except FileNotFoundError: # If '/var/log/auth.log' does not exist or can't be opened(not present in system).
+        return "\n==== Sudo Attempts ====\nError: Could not access '/var/log/auth.log'. This system may use journalctl instead." # Returns user-friendly error message.
+    
+    except PermissionError: # The file '/var/log/auth.log' is present, but the user needs permission to read it.
+        return "\n==== Sudo Attempts ====\nError: Access denied. Try to run the script using 'sudo'."
+
+
 
 def account_expiries(username):
     "check the given username password expiration settings"
+    try:
+        output = subprocess.check_output(['chage', '-l', username], text=True) # Runs the 'chage -l username' command using python. 'chage' allows a user to view or modify password aging or account expiration settings. '-l' tells 'chage' to list all expiry info for that specific user.
+        # 'subprocess.check_output' runs the command in the terminal and captures the output. 'text=True' ensures the output is returned as a string. 
+        return "\n==== Account Expiry Details ====\n" + output # If the previous command runs successfully, this will return a formatted string. Output from the command is added to the section header.
+    
+    except subprocess.CalledProcessError: # If 'chage' command does not work, python raises the following error meaning the command failed.
+        return "\n==== Account Expiry Details ====\nError: expiry info not available."
+ 
+
 
 def generate_report(username, user_data):
     "returns all the infomation obtained as a text file"
 
 def main():
+    username = get_username()
+    info = account_expiries(username)
+    print(info)
     
-    
-
-
 if __name__ == "__main__":
     main()
 
