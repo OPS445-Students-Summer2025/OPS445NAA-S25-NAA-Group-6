@@ -1,17 +1,36 @@
 #!/usr/bin/env python3
-#Description: Assignment2 script - System user monitoring Project. User will enter valid account name and will return computer log time, user account type, and sudo status.
+
+'''
+OPS445 Assignment 2
+Program: system_user_monitor.py
+The python code in this file is original work written by
+"Student Names". No code in this file is copied from any other source
+except those provided by the course instructor, including any person,
+textbook, or on-line resource. I have not shared this python script
+with anyone or anything except for submission for grading. I understand
+that the Academic Honesty Policy will be enforced and
+violators will be reported and appropriate action will be taken.
+
+Student Names: Andrew Holder, Tenzin Wangyel, Sundar Bashyal
+Semester: Summer 2025
+Description: Assignment2 script - System user monitoring Project. User will enter a valid account(username) name and script will return user identity, computer log time, account expiries, and sudo status.
+
+'''
 
 import subprocess # Can run external programs or system commands from within the python script.
 import pwd # Access the 'pwd' module. Retrieve information about user accounts(/etc/passwd) on a Unix/Linux system.
 import grp # Access the 'grp' module. Retrieve information about the system's group database(found in /etc/group).
 import datetime # Allows for working with dates and times(get current date/time).
 import os # Gives access to operating system functionalities(such as creating a new folder, or checking if a file exists).
+import argparse
+import sys
 
-
-def get_username():
-    "User enters a valid username on the system."
-    username = input("Enter a Username: ").strip() # Prompt user for username. Removes and leading or trailing spaces from the input.
-    return username
+def get_user_arg():
+    "Retrieves the system username provided from the --user argument"
+    parser = argparse.ArgumentParser(description="System user monitoring script")
+    parser.add_argument('--user', required=True, help="System user account to monitor")
+    args = parser.parse_args()
+    return args.user
 
 def is_user_valid(username):
     "Checks to see if entered user account exists."
@@ -121,7 +140,7 @@ def account_expiries(username):
 
 
 def generate_report(username, report):
-    "Returns all the infomation as a text file."
+    "Returns all the information as a text file."
     report_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # Creates timestamp for each report. Obtains current date and time.
     
     #Get home directory of user running script.
@@ -137,11 +156,11 @@ def generate_report(username, report):
     print(f"\n✅ Report saved as: {filename}") # Confirms to the user where the file was saved.
 
 def main():
-    username = get_username() # Prompt the user for their username.
-    while not is_user_valid(username): # Checks to see if username is not valid. Loop keeps going if the username is invalid.
-        print("Please enter a valid username.\n") # If username is invalid, this message is printed to tell the user to enter a valid account.
-        username = get_username() # Replaces previous username with the new one typed. Loop will continue if the user's account is still invalid.
-
+    username = get_user_arg() # Gets username from CLI.
+    if not is_user_valid(username): # Checks to see if username is not valid.
+        print("Error: Invalid username. Please enter a valid username.", file=sys.stderr) # If username is invalid, this message is printed to tell the user to enter a valid account.
+        sys.exit(1)
+    
     report = "" # Starts an empty string to build the full report.
 
     report += user_identity(username) # Each function gets called, and adds a new section to the report.
