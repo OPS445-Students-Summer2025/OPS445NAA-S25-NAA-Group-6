@@ -10,7 +10,7 @@ import os
 
 def get_username():
     "User enters a valid username on the system"
-    username = input("Enter a Username: ").strip() # Asks user for username. Removes and leading or trailing spaces from the input.
+    username = input("Enter a Username: ").strip() # Prompt user for username. Removes and leading or trailing spaces from the input.
     return username
 
 def is_user_valid(username):
@@ -120,13 +120,32 @@ def account_expiries(username):
  
 
 
-def generate_report(username, user_data):
-    "returns all the infomation obtained as a text file"
+def generate_report(username, report):
+    "Returns all the infomation as a text file."
+    report_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # Creates timestamp for each report. Obtains current date and time.
+    report_dir = os.path.expanduser("~/user_reports") # Will save to /home/andrew/user_reports
+    os.makedirs(report_dir, exist_ok=True) # Creates the folder if it does not already exist. If it does exist, do nothing.
+
+    filename = os.path.join(report_dir, f"user_report_{username}_{report_time}.txt") # Joins the path to the report with the username, and timestamp for a unique filename.
+    with open(filename, 'w') as file: # Safely opens the file writes to it. Auto-closes when finished.
+        file.write(report) # Writes report text into file.
+    print(f"\n✅ Report saved as: {filename}") # Confirms to the user where the file was saved.
 
 def main():
-    username = get_username()
-    info = account_expiries(username)
-    print(info)
+    username = get_username() # Prompt the user for their username.
+    while not is_user_valid(username): # checks to see if username is not valid. Loop keeps going if the username is invalid.
+        print("Please enter a valid username.\n") # If username is invalid, this message is printed to tell the user to enter a valid account.
+        username = get_username() # Replaces previous username with the new one typed. Loop will continue if the user's account is still invalid.
+
+    report = "" # Starts an empty string to build the full report.
+
+    report += user_identity(username) # Each function gets called, and adds a new section to the report.
+    report += user_login_activity(username)
+    report += check_sudo_attempts(username)
+    report += account_expiries(username)
+
+    generate_report(username, report) # Generates the final report, saves it to a text file, and saves it to a specific directory.
+
     
 if __name__ == "__main__":
     main()
