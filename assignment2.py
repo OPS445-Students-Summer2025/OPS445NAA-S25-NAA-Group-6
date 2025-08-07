@@ -69,25 +69,48 @@ def generate_report(username, user_data):
     filename = "report_" + username + ".txt"  # iam naming the report file by using the username so it is easy to know who it belongs to
     with open(filename, "w") as report: # opening the file in write mode, which will create the file or overwrite it if it already exists
 
-        # First, it writes the basic info about the user
-        report.write("System Report for User: " + username + "\n")
+        # Get the current date and time so we can include it in the report
+        now = datetime.datetime.now()
+        date_str = now.strftime("%Y-%m-%d")  # Example: 2025-08-07
+        time_str = now.strftime("%H:%M:%S")  # Example: 14:30:55
+
+        # First, it writes the basic info about the user and a title
+        report.write("==== System Report ====\n")
+        report.write("Date: " + date_str + "    Time: " + time_str + "\n\n")
+        report.write("==== User Information ====\n")
+        report.write("Username: " + username + "\n")
         report.write("UID: " + str(user_data['uid']) + "\n")  # then their UID
         report.write("GID: " + str(user_data['gid']) + "\n")  # and their GID
 
         # Now writes the list of groups this user is in, separated by commas(eg:sudo,admin...)
-        report.write("Groups: " + ", ".join(user_data['groups']) + "\n")
+        report.write("Groups: " + ", ".join(user_data['groups']) + "\n\n")
 
         # If there are any warnings (like sudo or adm access), it writes them too
         if user_data['warnings']:
-            report.write("Warnings:\n")
+            report.write("==== Privilege Warnings ====\n")
             for warning in user_data['warnings']:
                 report.write("- " + warning + "\n")
+
+        report.write("\n=== End of Report ===\n")  
 
     # shows a message in to know that it worked out 
     print("Report saved as", filename)
 
 def main():
-    pass
+
+    username = get_username() # asks the user to enetr  their username
+    if not is_user_valid(username): # this checks if th euser really exists in the system
+        print("Error: That user does not exist on this system.")
+        return  # Stop the program here if the username is invalid
+
+    user_data = user_identity(username) # so if the user is valid we should get their id information 
+    if 'error' in user_data: # if theres a error while trying to fetch the id (eg: 'User not found') it will stop the process
+        print("Error:", user_data['error'])
+        return
+
+    # Generates a report and saves it to a text file
+    generate_report(username, user_data)
+
 
 if __name__ == "__main__":
     main()
